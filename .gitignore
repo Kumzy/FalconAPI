@@ -1,4 +1,9 @@
-# virtualenv
+#General
+.DS_Store
+.idea
+__pycache__/
+
+#Virtualenv
 .venv
 venv/
 ENV/
