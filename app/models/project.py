@@ -8,7 +8,7 @@ from sqlalchemy.ext.declarative import declarative_base
 Base = declarative_base()
 
 def Project(Base):
-    __tablename__= 'project'
+    __tablename__ = 'project'
 
     id = Column(UUID, primary_key=True)
     name = Column(String,nullable=False)
