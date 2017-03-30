@@ -11,13 +11,14 @@ from app.database import engine
 
 
 class BaseResource(object):
+
     HELLO_WORLD = {
         'server': 'test',
-        'database': '%s' % (engine.name)
+        'database': '%s' % ( engine.name )
     }
 
     def to_json(self, body_dict):
-        return json.dumps(body_dict)
+        return json.dumps(body_dict).encode('utf-8')
 
 
     def on_success(self, res, data=None):

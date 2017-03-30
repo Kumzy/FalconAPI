@@ -14,18 +14,52 @@ class DatabaseSessionManager(object):
         self._session_factory = db_session
         self._scoped = isinstance(db_session, scoping.ScopedSession)
 
-    def process_request(self, req, res, resource=None):
-        """
-        Handle post-processing of the response (after routing).
+    def process_request(self, req, resp):
+        """Process the request before routing it.
+
+        Args:
+            req: Request object that will eventually be
+                routed to an on_* responder method.
+            resp: Response object that will be routed to
+                the on_* responder.
         """
         req.context['session'] = self._session_factory
 
+    def process_resource(self, req, resp, resource, params):
+        """Process the request and resource *after* routing.
 
-    def process_response(self, req, res, resource=None):
-        """
-        Handle post-processing of the response (after routing).
+        Note:
+            This method is only called when the request matches
+            a route to a resource.
+
+        Args:
+            req: Request object that will be passed to the
+                routed responder.
+            resp: Response object that will be passed to the
+                responder.
+            resource: Resource object to which the request was
+                routed. May be None if no route was found for
+                the request.
+            params: A dict-like object representing any
+                additional params derived from the route's URI
+                template fields, that will be passed to the
+                resource's responder method as keyword
+                arguments.
         """
 
+    def process_response(self, req, resp, resource, req_succeeded):
+        """Post-processing of the response (after routing).
+
+        Args:
+            req: Request object.
+            resp: Response object.
+            resource: Resource object to which the request was
+                routed. May be None if no route was found
+                for the request.
+            req_succeeded: True if no exceptions were raised
+                while the framework processed and routed the
+                request; otherwise False.
+        """
         session = req.context['session']
 
         if config.DB_AUTOCOMMIT:
@@ -34,11 +68,10 @@ class DatabaseSessionManager(object):
             except SQLAlchemyError as ex:
                 session.rollback()
 
-
         if self._scoped:
             # remove any database-loaded state from all current objects
             # so that the next access of any attribute, or any query execution will retrieve new state
-            session.remove()
+            self._session_factory.remove()
+            #session.remove()
         else:
             session.close()
-

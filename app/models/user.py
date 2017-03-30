@@ -4,22 +4,30 @@ from sqlalchemy import Column
 from sqlalchemy import String, Integer,Text
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.ext.declarative import declarative_base
-import itertools
+import json
 Base = declarative_base()
 
-def User(Base):
+
+
+class User(Base):
     __tablename__ = 'user'
 
-    id = Column(UUID, primary_key=True)
-    firstname = Column(String)
-    lastname = Column(String)
+    id = Column('id', UUID, primary_key=True)
+    firstname = Column('firstname', String)
+    lastname = Column('lastname', String)
 
     #It tells python how to print the class, used for debugging
     def __repr__(self):
         return "<User(id='%s', name='%s', lastname='%s')>"% \
             (self.id, self.firstname, self.lastname)
-#        return '<User %s %s %s>' % (self.id,self.firstname,self.lastname)
 
+    def __init__(self, id , firstname, lastname):
+        self.id = id
+        self.firstname = firstname
+        self.lastname = lastname
+
+    def __json__(self):
+        return ['id', 'firstname']
 
     @classmethod
     def get_id(cls):
@@ -45,10 +53,9 @@ def User(Base):
              (getattr(self, key))),
             intersection))
 
-    """FIELDS = {
+    FIELDS = {
         'id ' : str,
         'firstname': str,
         'lastname': str
     }
 
-    FIELDS.update(Base.FIELDS)"""
